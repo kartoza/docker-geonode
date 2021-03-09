@@ -326,4 +326,20 @@ In the builders phase, we build the output and put it in `output` directory. In 
 
 This section explains on how to utilize the project structure using Git workflow.
 
-A single builder repo must always have one source branch, which is the `main` branch. We consider this the stable branch. Commits that goes here 
+A single builder repo must always have one source branch, which is the `main` branch. We consider this the stable branch. Commits that goes here should 
+be as generic as possible because it can be used by other branches. Commits that goes here should be the one that is guaranteed to work.
+
+To extend from a branch, first you need to pick the source branch. As example, consider that we are going to create `develop` branch where we do some testing 
+or create partial commits before it is merged to `main` branch. Checkout from the `main` branch to create the new branch called `develop`
+
+```bash
+# If using git checkout
+git checkout main
+git checkout -b develop
+
+# If using git switch
+git switch main -c develop 
+```
+
+In the new branch, create a new overlay directory `src/develop`. Then put all 
+your overlays file there.
