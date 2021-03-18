@@ -16,6 +16,7 @@ def load_overlay_config(overlay):
         pass
     return config
 
+
 def sort_overlays(overlay_dir):
     """
     Sort overlays in increasing depth
@@ -37,6 +38,7 @@ def sort_overlays(overlay_dir):
         in sorted(ordered_overlays, key=lambda item: item['config']['depth'])
     ]
 
+
 def overlay_path_list(overlay):
     """
     Search for path lists inside an overlay
@@ -56,8 +58,7 @@ def overlay_path_list(overlay):
                 return p
             else:
                 return None
-        
-        
+
         ignore_patterns = [_pattern_filter_fn(p) for p in ignore_patterns]
         ignore_patterns = [p for p in ignore_patterns if p]
 
@@ -97,6 +98,7 @@ def overlay_path_list(overlay):
         'ignore_patterns': ignore_patterns
     }
 
+
 def _overlay_filters(item_sources,):
     complete_item_set = set()
     for item_source in reversed(item_sources):
@@ -125,6 +127,7 @@ def _overlay_filters(item_sources,):
             top_overlay = item_source['overlay_paths_object']
     # make sure to do it as pure function do, return the edited entry
     return item_sources
+
 
 def overlays_merge(overlay_dir):
     """
@@ -162,8 +165,7 @@ def overlays_merge(overlay_dir):
         del r['overlay_paths_object']
     result['dir_sources'] = ret
 
-    
-    # Do priority ovrlay filters
+    # Do priority overlay filters
     # files filters:
     ret = _overlay_filters(result['file_sources'])
     for r in ret:
@@ -171,4 +173,3 @@ def overlays_merge(overlay_dir):
     result['file_sources'] = ret
     
     return result
-    

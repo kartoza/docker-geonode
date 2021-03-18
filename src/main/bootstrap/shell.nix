@@ -8,8 +8,4 @@ in
 with pkgs;
 mkShell {
 	inputsFrom = [ (import ./default.nix {}) ] ++ lib.optionals (! isNull local-shell) [ local-shell ];
-	shellHook = ''
-		# Include bootstrap directory
-		export PYTHONPATH=${bootstrap-python-lib-path}:$PYTHONPATH
-	'';
 }

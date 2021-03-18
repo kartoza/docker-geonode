@@ -11,3 +11,19 @@ dependencies:
 build_args:
 # map that gets passed into the generator phase
 generator_args:
+  generators:
+    - # name of the generator
+      # it will be used to match the generator name as in the filename pattern:
+      # .template.<generator-name>.<extension-type>
+      name: jinja2
+      # command points to the executable that will run the generator
+      # it must be accessible from the PATH environment, or provide the
+      # full path here
+      command: jinja2_gen.py
+      # file_types must be a list of regex pattern that will match the
+      # extension type of this part: .template.<generator-name>.<extension-type>
+      file_types:
+        # .* means match any alphanumeric character (regex). This is not a dot with wildcard as in bash.
+        - '.*'
+      # extra parameters passed to the generator command (a list)
+      extra_args:

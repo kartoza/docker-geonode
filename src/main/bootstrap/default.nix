@@ -14,7 +14,7 @@ with pkgs;
 stdenv.mkDerivation rec {
 	pname = "booststrapper";
 	version = "1.0";
-	src = ./nix;
+	dontUnpack = true;
 	propagatedBuildInputs = [
 		direnv
 		nix-direnv
