@@ -3,6 +3,10 @@ bootstrap:
 	prepare_deps.sh || scripts/prepare_deps.sh
 	direnv exec . nix-shell '--run' 'python -m bootstrap $${OVERLAY_DIRECTORY} $${BUILD_DIRECTORY} $${BOOTSTRAP_DIRECTORY} $${PROJECT_ROOT}'
 
+clean-overlay:
+	rm -rf $${BUILD_DIRECTORY}
+	make overlay
+
 overlay:
 	overlay.py $${OVERLAY_DIRECTORY} $${BUILD_DIRECTORY}
 

@@ -48,7 +48,9 @@ def main():
     build_dir = sys.argv[2]
     overlay_config = stdlib.load_overlay_config(build_dir)
     generator_args = overlay_config.get('generator_args')
-    generators = generator_args.get('generators')
+    generators = None
+    if generator_args:
+        generators = generator_args.get('generators')
     patterns_list = []
     if generators:
         # register generator defined in source_config.yaml
