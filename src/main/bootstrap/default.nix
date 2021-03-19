@@ -21,6 +21,8 @@ stdenv.mkDerivation rec {
 		yq
 		jq
 		python38
+		python38Packages.jinja2
+		python38Packages.python-dotenv
 	];
 	dontInstall = true;
 	meta = {

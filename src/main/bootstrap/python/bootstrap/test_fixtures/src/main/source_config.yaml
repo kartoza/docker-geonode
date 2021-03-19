@@ -15,7 +15,7 @@ generator_args:
     - # name of the generator
       # it will be used to match the generator name as in the filename pattern:
       # .template.<generator-name>.<extension-type>
-      name: jinja2
+      name: jinja2-yaml
       # command points to the executable that will run the generator
       # it must be accessible from the PATH environment, or provide the
       # full path here
@@ -27,3 +27,11 @@ generator_args:
         - '.*'
       # extra parameters passed to the generator command (a list)
       extra_args:
+        - templates/context.yaml
+    - # same generator as above, but targeted at different name
+      name: jinja2-json
+      command: jinja2_gen.py
+      file_types:
+        - '.*'
+      extra_args:
+        - templates/context.json

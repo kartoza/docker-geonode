@@ -48,16 +48,17 @@ def main():
     build_dir = sys.argv[2]
     overlay_config = stdlib.load_overlay_config(build_dir)
     generator_args = overlay_config.get('generator_args')
+    generators = generator_args.get('generators')
     patterns_list = []
-    if generator_args:
+    if generators:
         # register generator defined in source_config.yaml
-        for arg in generator_args:
+        for arg in generators:
             file_types = arg.get('file_types')
             command = arg.get('command')
             name = arg.get('name')
             extra_args = arg.get('extra_args')
             for f_type in file_types:
-                pattern = f'^(?P<filename>.*)\.template\.{name}\.(?P<extension>{f_type})$'
+                pattern = fr'^(?P<filename>.*)\.template\.{name}\.(?P<extension>{f_type})$'
                 patterns_list.append({
                     'pattern': pattern,
                     'command': command,
@@ -72,7 +73,7 @@ def main():
             for p in patterns_list:
                 pattern = p['pattern']
                 command = p['command']
-                extra_args = p['command']
+                extra_args = p['extra_args']
                 match = re.match(pattern, f)
                 if match:
                     template_file_lists.append(f)
@@ -89,7 +90,12 @@ def main():
                         'template': f,
                         'output': output_filename
                     })
-                    result = subprocess.run(command_array, cwd=build_dir)
+                    result = subprocess.run(
+                        command_array, cwd=build_dir, capture_output=True)
+                    if result.stderr:
+                        print(result.stderr.decode('utf-8'), file=sys.stderr)
+                    if result.stdout:
+                        print(result.stdout.decode('utf-8'), file=sys.stdout)
                     if result.returncode == 0:
                         output_file_lists.append(output_filename)
 

@@ -11,3 +11,5 @@
 #    'output': <destination-output-name>
 #  }
 #]
+
+cat <&0
