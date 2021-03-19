@@ -1,0 +1,18 @@
+
+bootstrap:
+	prepare_deps.sh || scripts/prepare_deps.sh
+	direnv exec . nix-shell '--run' 'python -m bootstrap $${OVERLAY_DIRECTORY} $${BUILD_DIRECTORY} $${BOOTSTRAP_DIRECTORY} $${PROJECT_ROOT}'
+
+overlay:
+	overlay.py $${OVERLAY_DIRECTORY} $${BUILD_DIRECTORY}
+
+generate:
+	generate.py ${OVERLAY_DIRECTORY} ${BUILD_DIRECTORY}
+
+test:
+	python -m unittest discover -s python/bootstrap -v
+
+phase-test:
+	cd scripts/phase-tests; python -m unittest discover -v
+
+setup: overlay generate
