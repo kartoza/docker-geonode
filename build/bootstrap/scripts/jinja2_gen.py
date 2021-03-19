@@ -47,15 +47,13 @@ def main():
     else:
         context = {}
 
-    build_dir = os.getenv('BUILD_DIRECTORY')
-    if build_dir is None:
-        raise EnvironmentError('BUILD_DIRECTORY from environment variable is not defined')
-
     env = jinja2.Environment(
-        loader=jinja2.FileSystemLoader(build_dir)
+        loader=jinja2.FileSystemLoader(os.getcwd())
     )
     env.filters['from_dotenv'] = from_dotenv
     env.filters['from_env'] = from_env
+    env.filters['from_yaml'] = from_yaml
+    env.filters['from_json'] = from_json
 
     template = env.get_template(template_name)
     with open(output_name, mode='w') as f:
@@ -63,8 +61,6 @@ def main():
             env=os.environ,
             context=context
         ))
-        
-    exit(0)
 
 
 if __name__ == '__main__':

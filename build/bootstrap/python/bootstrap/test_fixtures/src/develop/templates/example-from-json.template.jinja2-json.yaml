@@ -3,8 +3,8 @@
 sample-map:
     from-env: {{ BUILD_DIRECTORY }}
     from-env-default: {{ NO_VAR | from_env('PROJECT_DIR') }}
-    from-dotenv: {{ "default" | from_dotenv('bootstrap/test_fixtures/src/develop/templates/.env', 'KEY1' ) }}
-    from-yaml: {{ "default" | from_yaml('bootstrap/test_fixtures/src/develop/templates/context.yaml', ) }}
+    from-dotenv: {{ "default" | from_dotenv('templates/.env', 'KEY1' ) }}
+    from-yaml: {{ "default" | from_yaml('templates/context.yaml', 'key2' ) }}
 
     {% if context.nonexistent_key %}
     this should not be rendered
@@ -15,6 +15,6 @@ sample-map:
     {% endif %}
 
     sublist:
-    {% for el in context.map.sublist %}
+    {% for el in context.map1.sublist %}
         - {{ el }}
     {% endfor %}

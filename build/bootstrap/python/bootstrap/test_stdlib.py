@@ -55,10 +55,17 @@ class TestStdlib(unittest.TestCase):
                     'source_config.yaml',
                     'subdir/b.txt',
                     'subdir_3/nested/b.txt',
+                    'templates/.env', 
+                    'templates/context.json', 
+                    'templates/context.yaml', 
+                    'templates/control.yaml', 
+                    'templates/example-from-json.template.jinja2-json.yaml', 
+                    'templates/example-from-yaml.template.jinja2-yaml.yaml',
                 ],
                 'dirs': [
                     'subdir',
                     'subdir_3/nested',
+                    'templates',
                 ],
                 'ignore_patterns': [
                     '.gitignore',
@@ -90,7 +97,8 @@ class TestStdlib(unittest.TestCase):
                     'overlay': overlays[1],
                     'sources': [
                         'subdir',
-                        'subdir_3/nested'
+                        'subdir_3/nested',
+                        'templates'
                     ]
                 }
             ],
@@ -111,7 +119,13 @@ class TestStdlib(unittest.TestCase):
                         'b.txt',
                         'source_config.yaml',
                         'subdir/b.txt',
-                        'subdir_3/nested/b.txt'
+                        'subdir_3/nested/b.txt',
+                        'templates/.env', 
+                        'templates/context.json', 
+                        'templates/context.yaml', 
+                        'templates/control.yaml', 
+                        'templates/example-from-json.template.jinja2-json.yaml', 
+                        'templates/example-from-yaml.template.jinja2-yaml.yaml',
                     ]
                 }
             ]
