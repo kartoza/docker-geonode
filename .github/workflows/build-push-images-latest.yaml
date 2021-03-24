@@ -49,11 +49,14 @@ jobs:
             echo "::set-output name=use-cache::true"
           fi
       - name: Bootstrapping dependencies
-        working-directory: src/main/bootstrap
-        run: make bootstrap
+        run: |
+          nix-env -f '<nixpkgs>' -iA pkgs.direnv
+          nix-build
+          nix-shell --run "direnv allow"
+          make bootstrap
+
       - name: Store nix derivation cache
         run: |
-          nix-build
           DERIVATION=$(readlink result)
           echo $DERIVATION
           mkdir -p /tmp/build-cache/nix-closure
