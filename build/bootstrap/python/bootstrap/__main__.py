@@ -94,11 +94,6 @@ def main():
     except:
         pass
 
-    # # run bootstrap again, to rebootstrap the build dir. only if we currently
-    # # run it from bootstrap dir
-    # if os.getcwd() == bootstrap_dir and not bootstrap_dir == build_dir:
-    #     subprocess.run(["make", "bootstrap"], cwd=build_dir)
-
 
 if __name__ == '__main__':
     main()
