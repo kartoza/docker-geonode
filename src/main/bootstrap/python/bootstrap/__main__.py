@@ -48,8 +48,12 @@ def main():
         'shell.nix',
         'Makefile'
     ]
-    # copy bootstrap package if it is not being run from project root
-    if not os.getcwd() == project_dir:
+
+    ignored_files = [
+        '.bootstrap-dir'
+    ]
+    # copy bootstrap package if it is being run from bootstrap dir
+    if os.getcwd() == bootstrap_dir:
         target_full_path = os.path.join(build_dir, os.path.basename(
             bootstrap_dir))
         try:
@@ -60,6 +64,13 @@ def main():
             bootstrap_dir, target_full_path,
             symlinks=True,
             ignore_dangling_symlinks=True)
+        basedirname = os.path.basename(bootstrap_dir)
+        for ignored_f in ignored_files:
+            target_full_path = os.path.join(build_dir, basedirname, ignored_f)
+            try:
+                os.remove(target_full_path)
+            except:
+                pass
 
     # Link over minimum dependency manager to project root
     for f in needed_files:

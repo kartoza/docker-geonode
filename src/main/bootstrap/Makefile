@@ -1,4 +1,6 @@
 
+.PHONY: bootstrap clean-overlay overlay generate test phase-test setup
+
 bootstrap:
 	prepare_deps.sh || scripts/prepare_deps.sh
 	direnv exec . nix-shell '--run' 'python -m bootstrap $${OVERLAY_DIRECTORY} $${BUILD_DIRECTORY} $${BOOTSTRAP_DIRECTORY} $${PROJECT_ROOT}'

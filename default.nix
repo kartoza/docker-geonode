@@ -1,1 +1,1 @@
-/Users/lucernae/Documents/WorkingDir/Projects/kartoza/docker-geonode/build/bootstrap/default.nix
+/home/lucernae/WorkingDir/kartoza/docker-geonode/build/bootstrap/default.nix
