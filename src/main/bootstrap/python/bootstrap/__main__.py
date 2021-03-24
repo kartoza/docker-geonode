@@ -83,21 +83,16 @@ def main():
 
     # run bootstrap hooks (from the build dir or bootstrap dir)
     try:
-        if not os.getcwd() == project_dir:
+        if os.getcwd() == bootstrap_dir:
             subprocess.run(
                 ["bash", "-c", ".overlay-hooks/bootstrap.sh"],
                 cwd=bootstrap_dir)
-        else:
+        elif os.getcwd() == build_dir:
             subprocess.run(
                 ["bash", "-c", ".overlay-hooks/bootstrap.sh"],
                 cwd=build_dir)
     except:
         pass
-
-    # run bootstrap again, only if the current phase is not run from the
-    # project root
-    if not os.getcwd() == project_dir:
-        subprocess.run(["make", "bootstrap"], cwd=project_dir)
 
 
 if __name__ == '__main__':
