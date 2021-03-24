@@ -2,6 +2,7 @@
 import os
 import yaml
 import fnmatch
+import datetime
 
 
 def load_overlay_config(overlay):
@@ -173,3 +174,19 @@ def overlays_merge(overlay_dir):
     result['file_sources'] = ret
     
     return result
+
+
+def current_calendar_version(time_format=None, with_hour=False):
+    """Return calendar version for now, in this moment.
+
+    This function can be used to generate realtime calendar versions.
+    """
+    # use utc time
+    now = datetime.datetime.utcnow()
+    if not time_format:
+        time_format = 'v%Y.%m.%d'
+        if with_hour:
+            time_format += '.%H'
+    else:
+        time_format = ''
+    return now.strftime(time_format)
