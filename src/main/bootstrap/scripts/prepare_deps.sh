@@ -44,5 +44,5 @@ else
 fi
 
 # direnv is hooked but not available in this script yet at the moment.
-eval "$(direnv hook bash)"
-direnv allow
+eval "$(nix-shell --run 'direnv hook bash')"
+nix-shell --run 'direnv allow'
