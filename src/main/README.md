@@ -77,7 +77,7 @@ orchestration/image builder. If we already have `least_electrification-3.1` and 
 `least_electrification-somalia-3.1/gep-v1.1.14/v2021.01.01`. `version` has to be a suffix (the last), because it's the one who often changes. 
 Component version can be specified after the `main_app_version`.
 
-If the git tag coming from a branch `project-{project_name}` have a pattern `{project_name}/{version}`, then we call this the **canonical git tag**. For example,
+If the git tag coming from a branch `project-{project_name}`, have a pattern `{project_name}/{version}`, then we call this the **canonical git tag**. For example,
 `least_electrification-somalia/v2021.01.01`.
 
 All the naming scheme above is used in order to be easily indexed and searched with regex. Simple release lookup for a project/stack can be done with just 
@@ -132,7 +132,7 @@ Image tag is a tag used for our (Docker) container image.
 
 Build source of an image tag may come from a branch or tag.
 
-Multiple image tag may refer to the same commit build source. You can have `debian/3.1` and `alpine/3.1` built from the same git commit.
+Multiple image tag may refer to the same commit build source. You can have `debian-3.1` and `alpine-3.1` built from the same git commit.
 
 We explicitly do not allow monorepo based build source. A branch build can only build images for a specific project. This is to allow more independent build 
 for any projects.
@@ -141,13 +141,18 @@ Image tag that uses HEAD of `main` branch should be tagged as `stable`.
 
 Image tag that uses HEAD of `develop` branch should be tagged as `latest`.
 
-Image tag that uses HEAD of `project-{project_main}` branch should be tagged as `{project_main}/latest`.
+Image tag that uses HEAD of `project-{project_main}` branch should be tagged as `{project_main}---latest`.
 
-Image tag that uses canonical git tag of `{project_name}/{version}` should be tagged as `{project_name}/{version}`.
+Image tag that uses canonical git tag of `{project_name}/{version}` should be tagged as `{project_name}---{version}`.
+
+Docker Image Tag cannot contain `/`, so we replace `/` with `--`, in the final tag name.
+This is usefule if you want to create shorthand docker tag that maps to specific git tag with nonempty `{component_version}`.
+In that case, the value `{app_version}` will contain `/`. For example, if we have git tag `least_electrification-somalia-3.1/gep-v1.1.14/v2021.01.01`,
+the corresponding docker image tag can be: `least_electrification-somalia---3.1--gep-v1.1.14--v2021.01.01`
 
 If the image repository is reserved to a `project_name`, then you should omit `project_name` from the image tag.
 So, the image tag is just `{version}`. For example, normally the image repo is `kartoza/geonode`. 
-So, a canonical git tag `sadc_gip/v2021.01.01` will have full image name: `kartoza/geonode:sadc_gip/v2021.01.01`.
+So, a canonical git tag `sadc_gip/v2021.01.01` will have full image name: `kartoza/geonode:sadc_gip--v2021.01.01`.
 However if you want to store the image in `kartoza/sadc_gip` repo, then the full image name is just `kartoza/sadc_gip:v2021.01.01` for brevity.
 
 One build source commit may produce multiple image output (multiple different images or image variants).
@@ -156,8 +161,8 @@ For example, one commit source may produce one GeoNode image, and then the corre
 Another example, one commit source may produce one GeoNode image for debugging (with debug logging set up), and another one for production used (optimized).
 Any other example, you may want to produce one GeoNode image but using a different image variant, like `debian` or `alpine`.
 
-A `variant` is a slash separated unique name identifying the **kind** of image you produce. It must be ordered from generic to specific. For example,
-you want to build GeoNode image, using debian base, but for debugging. The variant name for this case can be `debian/geonode/debug`. The logic for this order:
+A `variant` is a double dash separated unique name identifying the **kind** of image you produce. It must be ordered from generic to specific. For example,
+you want to build GeoNode image, using debian base, but for debugging. The variant name for this case can be `debian--geonode--debug`. The logic for this order:
 
 - `debian` is a base image (the base docker image)
 - `geonode` is the software that you install on top of debian (build layer on top of debian)
@@ -166,33 +171,36 @@ you want to build GeoNode image, using debian base, but for debugging. The varia
   
 If any of the `variant` segment is unambigous, you can omit it for brevity. For example, if the `debian` image is a default base image, you can skip this segment. 
 If you only build `geonode` image, you can skip this segment. Finally, if you only produce production mode image, you can omit `debug` segment. A rule of thumb, 
-if you have two exact `variant` name, then just omit it. For example, if you have two variant `debian/geonode/debug` and `debian/geonode/prod` and nothing else, then you might as 
+if you have two exact `variant` name, then just omit it. For example, if you have two variant `debian--geonode--debug` and `debian--geonode--prod` and nothing else, then you might as 
 well just called it `debug` and `prod` variant.
 
-If the image tag is in the form `{project_name}--{variant}/{version}` (note the double dash between `project_name` and `variant`), 
+If the image tag is in the form `{project_name}---{variant}--{version}` (note the triple dash between `project_name` and `variant`), 
 then we can call this the **canonical image tag**. For example, 
-`least_electrification-somalia--debian/debug/v2021.01.01`. Canonical image tag may omit `project_name` if the image repo is unambigously reserved for that project 
-only. In this case, the image tag is just `debian/debug/v2021.01.01` and the full image name may be like this: `kartoza/least_electrification-somalia:debian/debug/v2021.01.01`.
+`least_electrification-somalia---debian--debug--v2021.01.01`. Canonical image tag may omit `project_name` if the image repo is unambigously reserved for that project 
+only. In this case, the image tag is just `debian--debug--v2021.01.01` and the full image name may be like this: `kartoza/least_electrification-somalia:debian--debug--v2021.01.01`.
 
 It is more recommended to express image dependencies and build source as image label and exclude it from the image tag. Convention for the image label will 
 be specified later.
 
 Other than rules specified above, you can implement your own image tag naming scheme if you need a shorthand tag. 
-For example, you can specify in your build rules that image tag `least_electrification/latest` points to the same image hash as a canonical image tag
-`least_electrification--debian/geonode/production/v2021.01.01`. This is useful for demo/quick-setup purposes so you can use shorter image name for brevity. 
-However, keep in mind that image tag like `least_electrification/latest` is a moving target, so it's not intended for production deployment. Use canonical image tag
+For example, you can specify in your build rules that image tag `least_electrification---latest` points to the same image hash as a canonical image tag
+`least_electrification---debian--geonode--production--v2021.01.01`. This is useful for demo/quick-setup purposes so you can use shorter image name for brevity. 
+However, keep in mind that image tag like `least_electrification---latest` is a moving target, so it's not intended for production deployment. Use canonical image tag
 for production deployment and extending a base image tag.
 
 If you need to build UI or CLI that leverages this image tag convention, consider using the following python regex:
 
 ```
-^(?P<project_name>[\w-]+)--(?P<variant>[\w/]+)(/(?P<version>[v\d.]+))$
+^(?P<project_name>[\w-]+)---(?P<variant>[\w-]+)(--(?P<version>[v\d.]+))$
 ```
 
 Both `project_name` and `version` uses the same sub regex and value type as described in the [git tag](#git-tag) section.
 
 For `variant`, you can think of it like a value only filter (literal tags). It doesn't have hierarchical or ordering, but you can specify multiple values
-to filter the image tag. `variant` is a slash separated values, or can be matched with regex `(\w+)` to return multiple groups match.
+to filter the image tag. `variant` is a double-dash separated values.
+In some cases a `variant` may specify it's own version, like `debian-stretch` or `debian-jessie` or `alpine-3.1`. In this case, you
+can think that the version of the variant is in the last dash separator, which is `stretch` or `jessie`.
+It's also harmless to think that the full segment `debian-stretch` is it's own variant value entirely.
 
 ## Directory Structure
 

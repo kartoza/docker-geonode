@@ -73,16 +73,17 @@ def main():
                 pass
 
     # Link over minimum dependency manager to project root
-    for f in needed_files:
-        source_full_path = os.path.join(bootstrap_dir, f)
-        target_full_path = os.path.join(project_dir, f)
-        if os.path.exists(source_full_path):
-            while os.path.exists(target_full_path):
-                try:
-                    os.remove(target_full_path)
-                except BaseException:
-                    pass
-            os.symlink(source_full_path, target_full_path)
+    if os.getcwd() == bootstrap_dir:
+        for f in needed_files:
+            source_full_path = os.path.join(bootstrap_dir, f)
+            target_full_path = os.path.join(project_dir, f)
+            if os.path.exists(source_full_path):
+                while os.path.exists(target_full_path):
+                    try:
+                        os.remove(target_full_path)
+                    except BaseException:
+                        pass
+                os.symlink(source_full_path, target_full_path)
 
     # run bootstrap hooks (from the build dir or bootstrap dir)
     try:
