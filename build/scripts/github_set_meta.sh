@@ -3,6 +3,8 @@
 
 
 if [[ -n "$GITHUB_ACTIONS" ]]; then
+  echo "Github Actions detected."
+  echo "Set output variable meta."
   echo "::set-output name=DOCKERHUB_REPO::${DOCKERHUB_REPO}"
   echo "::set-output name=VERSION::${VERSION}"
   echo "::set-output name=MAIN_APP_VERSION::${MAIN_APP_VERSION}"
