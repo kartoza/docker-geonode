@@ -60,7 +60,7 @@ jobs:
           DERIVATION=$(readlink result)
           echo $DERIVATION
           mkdir -p /tmp/build-cache/nix-closure
-          nix-store --export $(nix-store -qR ${DERIVATION}) > /tmp/nix-closure/nix-shell.closure
+          nix-store --export $(nix-store -qR ${DERIVATION}) > /tmp/build-cache/nix-closure/nix-shell.closure
 
       - name: Create overlays
         shell: direnv exec . bash -eo pipefail {0}
