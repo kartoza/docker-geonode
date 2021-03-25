@@ -1,0 +1,3 @@
+[submodule "src/main/geonode"]
+	path = src/main/geonode
+	url = https://github.com/GeoNode/geonode.git

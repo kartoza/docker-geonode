@@ -1,0 +1,3 @@
+bootstrap/.venv/*
+# Ignore .bootstrap-dir flag
+bootstrap/.bootstrap-dir
