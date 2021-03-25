@@ -64,7 +64,9 @@ jobs:
 
       - name: Create overlays
         shell: direnv exec . bash -eo pipefail {0}
-        run: make overlay generate
+        run: |
+          make overlay generate
+          direnv allow build
 
       - name: Generate build meta
         id: build-meta
