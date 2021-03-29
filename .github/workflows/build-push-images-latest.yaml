@@ -71,11 +71,12 @@ jobs:
         shell: direnv exec . bash -eo pipefail {0}
         run: |
           make overlay 
-          make generate
           
           cat << EOF >> build/.local.env
           IMAGE_VARIANT=${{ matrix.variant }}
           EOF
+
+          make generate
           
           direnv allow build
 
