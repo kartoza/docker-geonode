@@ -36,7 +36,10 @@ def from_json(value, json_file, key):
 def main():
     template_name = sys.argv[1]
     output_name = sys.argv[2]
-    context_file = sys.argv[3]
+    try:
+        context_file = sys.argv[3]
+    except:
+        context_file = None
     # extra args is the context file
     if context_file and context_file.endswith('.yaml'):
         with open(context_file) as f:

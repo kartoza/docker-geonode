@@ -1,0 +1,20 @@
+__pycache__
+
+.vscode
+.idea
+result
+.direnv
+
+# Exclude geonode from build dir
+# You need to efficiently select which files you wanted to persist
+# in build dir in git.
+# Build dir are generate-able from overlay directory
+# So you typically want to include it in git for review purposes only
+
+# For the moment, just exclude all geonode source code from git in build dir
+geonode
+!variants/**/geonode
+
+# exclude internal dot env variables
+.local.envrc
+.local.env
