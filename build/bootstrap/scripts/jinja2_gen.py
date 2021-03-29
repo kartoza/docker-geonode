@@ -36,12 +36,15 @@ def from_json(value, json_file, key):
 def main():
     template_name = sys.argv[1]
     output_name = sys.argv[2]
-    context_file = sys.argv[3]
+    try:
+        context_file = sys.argv[3]
+    except:
+        context_file = None
     # extra args is the context file
-    if context_file.endswith('.yaml'):
+    if context_file and context_file.endswith('.yaml'):
         with open(context_file) as f:
             context = yaml.load(f, Loader=yaml.FullLoader)
-    elif context_file.endswith('.json'):
+    elif context_file and context_file.endswith('.json'):
         with open(context_file) as f:
             context = json.load(f)
     else:

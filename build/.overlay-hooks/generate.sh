@@ -4,7 +4,7 @@
 # example:
 # cat <&0
 
-# In put is a json array like this:
+# Input is a json array like this:
 #[
 #  {
 #    'template': <template-name>
@@ -12,4 +12,10 @@
 #  }
 #]
 
-cat <&0
+# We are not going to use the input of the scripts.
+# We are going to generate build variants from the environment variable toggle
+if [[ -n "${IMAGE_VARIANT}" ]]; then
+    set -eux
+    bash "${BUILD_DIRECTORY}/variants/${IMAGE_VARIANT}/prepare.sh"
+    set +eux
+fi

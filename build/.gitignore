@@ -13,3 +13,8 @@ result
 
 # For the moment, just exclude all geonode source code from git in build dir
 geonode
+!variants/**/geonode
+
+# exclude internal dot env variables
+.local.envrc
+.local.env
