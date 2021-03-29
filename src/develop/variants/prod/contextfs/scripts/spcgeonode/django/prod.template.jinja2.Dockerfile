@@ -22,6 +22,6 @@ LABEL com.kartoza.docker.image.app_version="${APP_VERSION}" \
     com.kartoza.docker.image.variants="prod"
 
 ADD rootfs/uwsgi.conf /uwsgi.conf
-
+WORKDIR /spcgeonode
 ENTRYPOINT [ "/spcgeonode/scripts/spcgeonode/django/docker-entrypoint.sh" ]
 CMD [ "uwsgi", "--ini=/uwsgi.conf" ]
