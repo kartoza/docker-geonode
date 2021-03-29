@@ -11,11 +11,13 @@ in
 {
   pkgs ? pinned-pkgs }:
 with pkgs;
-dockerTools.buildLayeredImage rec {
-	name = "slim-base";
-	tag = "latest";
-    contents = [
-    	#pkgs.bashInteractive
+stdenv.mkDerivation rec {
+	pname = "geonode-native-deps";
+	version = "3.1";
+	dontUnpack = true;
+	dontInstall = true;
+    propagatedBuildInputs = [
+    	pkgs.bashInteractive
     	#pkgs.coreutils
     	#pkgs.nix
     	#pkgs.bashInteractive
