@@ -70,13 +70,12 @@ jobs:
       - name: Create overlays
         shell: direnv exec . bash -eo pipefail {0}
         run: |
-          make overlay 
+          make overlay
+          make generate
           
           cat << EOF >> build/.local.env
           IMAGE_VARIANT=${{ matrix.variant }}
           EOF
-
-          make generate
           
           direnv allow build
 
@@ -84,7 +83,9 @@ jobs:
         id: build-variant
         shell: direnv exec . bash -eo pipefail {0}
         working-directory: build
-        run: scripts/github_check_image_variant.sh
+        run: |
+          make generate
+          scripts/github_check_image_variant.sh
 
       - name: Generate build meta
         if: matrix.variant == 'default' || steps.build-variant.outputs.IS_VARIANT_EXISTS
@@ -133,7 +134,9 @@ jobs:
             ${{ steps.build-meta.outputs.CANONICAL_IMAGE_TAG }}
 
       - name: Image digest
+        if: matrix.variant == 'default'
         run: echo ${{ steps.docker_build.outputs.digest }}
       
       - name: Image variant digest
+        if: steps.build-variant.outputs.IS_VARIANT_EXISTS
         run: echo ${{ steps.docker_build_variant.outputs.digest }}
