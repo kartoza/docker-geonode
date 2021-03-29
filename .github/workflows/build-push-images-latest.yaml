@@ -6,10 +6,15 @@ on:
       - develop
       - main
       - project-*
-      - standard-op
+      - test
 jobs:
   docker-builder:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        variant:
+          - default
+          - prod
     steps:
       - uses: actions/checkout@v2
         with:
@@ -65,16 +70,30 @@ jobs:
       - name: Create overlays
         shell: direnv exec . bash -eo pipefail {0}
         run: |
-          make overlay generate
+          make overlay 
+          make generate
+          
+          cat << EOF >> build/.local.env
+          IMAGE_VARIANT=${{ matrix.variant }}
+          EOF
+          
           direnv allow build
 
+      - name: Check if we have matching target variant
+        id: build-variant
+        shell: direnv exec . bash -eo pipefail {0}
+        working-directory: build
+        run: scripts/github_check_image_variant.sh
+
       - name: Generate build meta
+        if: matrix.variant == 'default' || steps.build-variant.IS_VARIANT_EXISTS
         id: build-meta
         shell: direnv exec . bash -eo pipefail {0}
         working-directory: build
         run: scripts/github_set_meta.sh
 
       - name: Docker meta
+        if: matrix.variant == 'default' || steps.build-variant.IS_VARIANT_EXISTS
         id: docker_meta
         uses: crazy-max/ghaction-docker-meta@v1
         with:
@@ -83,7 +102,8 @@ jobs:
             {{raw}}
           tag-latest: false
 
-      - name: Build and push
+      - name: Build and push default
+        if: matrix.variant == 'default'
         id: docker_build
         uses: docker/build-push-action@v2
         with:
@@ -95,6 +115,24 @@ jobs:
             ${{ steps.build-meta.outputs.LATEST_IMAGE_TAG }}
             ${{ steps.build-meta.outputs.MAJOR_IMAGE_TAG }}
             ${{ steps.build-meta.outputs.CANONICAL_IMAGE_TAG }}
+      
+      - name: Build and push variant
+        if: steps.build-variant.IS_VARIANT_EXISTS
+        id: docker_build_variant
+        uses: docker/build-push-action@v2
+        with:
+          context: build/geonode
+          file: build/geonode/scripts/spcgeonode/django/${{ matrix.variant }}.Dockerfile
+          push: true
+          target: ${{ matrix.variant }}
+          tags: |
+            ${{ steps.docker_meta.outputs.tags }}
+            ${{ steps.build-meta.outputs.LATEST_IMAGE_TAG }}
+            ${{ steps.build-meta.outputs.MAJOR_IMAGE_TAG }}
+            ${{ steps.build-meta.outputs.CANONICAL_IMAGE_TAG }}
 
       - name: Image digest
         run: echo ${{ steps.docker_build.outputs.digest }}
+      
+      - name: Image variant digest
+        run: echo ${{ steps.docker_build_variant.outputs.digest }}
