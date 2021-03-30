@@ -27,11 +27,12 @@ def sort_overlays(overlay_dir):
         try:
             overlay_target = os.path.join(overlay_dir, overlay)
             config = load_overlay_config(overlay_target)
-            ordered_overlays.append({
-                'dir': overlay_target,
-                'name': overlay,
-                'config': config
-            })
+            if config:
+                ordered_overlays.append({
+                    'dir': overlay_target,
+                    'name': overlay,
+                    'config': config
+                })
         except BaseException as e:
             pass
     return [
@@ -40,10 +41,9 @@ def sort_overlays(overlay_dir):
     ]
 
 
-def overlay_ignore_patterns(overlay):
+def overlay_path_list(overlay):
     """
-    Get a list of ignored overlay files from the current overlay/.overlayignore
-    file
+    Search for path lists inside an overlay
     """
     ignore_patterns = []
     try:
@@ -63,15 +63,10 @@ def overlay_ignore_patterns(overlay):
 
         ignore_patterns = [_pattern_filter_fn(p) for p in ignore_patterns]
         ignore_patterns = [p for p in ignore_patterns if p]
+
     except BaseException:
         pass
-    return ignore_patterns
 
-
-def overlay_path_list(overlay):
-    """
-    Search for path lists inside an overlay
-    """
     overlay_files = []
     overlay_dirs = set()
     for root, dirs, files in os.walk(overlay, topdown=True):
@@ -80,6 +75,12 @@ def overlay_path_list(overlay):
             relative_root = '' if relative_root == '.' else relative_root
             files = [os.path.join(relative_root, f) for f in files]
             files_set = set(files)
+            def _file_filter_fn(f, p):
+                return fnmatch.fnmatch(f, p)
+            if files_set:
+                for ignore_pattern in ignore_patterns:
+                    excluded_set = set(fnmatch.filter(files_set, ignore_pattern))
+                    files_set = files_set - excluded_set
             
             if files_set:
                 overlay_files += list(files_set)
@@ -87,16 +88,6 @@ def overlay_path_list(overlay):
         
         if files_set and relative_root:
             overlay_dirs.add(relative_root)
-
-        # also inspect symlink'd folder and include it to overlay_dirs
-        if dirs:
-            absolute_dirs = [os.path.join(root, d) for d in dirs]
-            symlink_dirs = [d for d in absolute_dirs if os.path.islink(d)]
-            dirs = [os.path.relpath(d, overlay) for d in symlink_dirs]
-            dirs_set = set(dirs)
-
-            if dirs_set:
-                overlay_dirs.update(dirs_set)
 
     overlay_files.sort()
     overlay_dirs = list(overlay_dirs)
@@ -106,7 +97,7 @@ def overlay_path_list(overlay):
         'overlay': overlay,
         'files': overlay_files,
         'dirs': overlay_dirs,
-        'ignore_patterns': overlay_ignore_patterns(overlay)
+        'ignore_patterns': ignore_patterns
     }
 
 

@@ -6,15 +6,11 @@ on:
       - develop
       - main
       - project-*
-<<<<<<< HEAD
-      - standard-op
-=======
   pull_request:
     branches:
       - develop
       - main
       - project-*
->>>>>>> 501a4ec... [main] backport changes from develop
 jobs:
   docker-builder:
     runs-on: ubuntu-latest
@@ -76,8 +72,6 @@ jobs:
           make overlay generate
           direnv allow build
 
-<<<<<<< HEAD
-=======
       - name: Check if we have matching target variant
         id: build-variant
         shell: direnv exec . bash -eo pipefail {0}
@@ -100,7 +94,6 @@ jobs:
             exit 1
           fi
 
->>>>>>> 501a4ec... [main] backport changes from develop
       - name: Generate build meta
         id: build-meta
         shell: direnv exec . bash -eo pipefail {0}
@@ -130,8 +123,6 @@ jobs:
             ${{ steps.build-meta.outputs.LATEST_IMAGE_TAG }}
             ${{ steps.build-meta.outputs.MAJOR_IMAGE_TAG }}
             ${{ steps.build-meta.outputs.CANONICAL_IMAGE_TAG }}
-<<<<<<< HEAD
-=======
       
       - name: Build and push variant
         if: steps.build-variant.outputs.IS_VARIANT_EXISTS
@@ -147,7 +138,6 @@ jobs:
             ${{ steps.build-meta.outputs.LATEST_VARIANT_IMAGE_TAG }}
             ${{ steps.build-meta.outputs.MAJOR_VARIANT_IMAGE_TAG }}
             ${{ steps.build-meta.outputs.CANONICAL_VARIANT_IMAGE_TAG }}
->>>>>>> 501a4ec... [main] backport changes from develop
 
       - name: Image digest
         run: echo ${{ steps.docker_build.outputs.digest }}
