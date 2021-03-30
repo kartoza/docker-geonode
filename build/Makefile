@@ -16,4 +16,3 @@ generate:
 
 build:
 	cd $(BUILD_DIRECTORY) && ./build.sh
-
