@@ -27,11 +27,12 @@ def sort_overlays(overlay_dir):
         try:
             overlay_target = os.path.join(overlay_dir, overlay)
             config = load_overlay_config(overlay_target)
-            ordered_overlays.append({
-                'dir': overlay_target,
-                'name': overlay,
-                'config': config
-            })
+            if config:
+                ordered_overlays.append({
+                    'dir': overlay_target,
+                    'name': overlay,
+                    'config': config
+                })
         except BaseException as e:
             pass
     return [
