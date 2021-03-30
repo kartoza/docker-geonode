@@ -50,8 +50,13 @@ class TestStdlib(unittest.TestCase):
             {
                 'overlay': overlays[1],
                 'files': [
+                    '.git-repo/a.idx',
+                    '.git-repo/b.idx',
+                    '.git-repo/c.idx',
+                    '.git-repo/d.idx',
                     '.overlayignore',
                     'b.txt',
+                    'c.txt',
                     'source_config.yaml',
                     'subdir/b.txt',
                     'subdir_3/nested/b.txt',
@@ -63,8 +68,10 @@ class TestStdlib(unittest.TestCase):
                     'templates/example-from-yaml.template.jinja2-yaml.yaml',
                 ],
                 'dirs': [
+                    '.git-repo',
                     'subdir',
                     'subdir_3/nested',
+                    'subdir_4',
                     'templates',
                 ],
                 'ignore_patterns': [
@@ -88,7 +95,6 @@ class TestStdlib(unittest.TestCase):
                 {
                     'overlay': overlays[0],
                     'sources': [
-                        '.git-repo',
                         'subdir/nested',
                         'subdir_2'
                     ]
@@ -96,8 +102,10 @@ class TestStdlib(unittest.TestCase):
                 {
                     'overlay': overlays[1],
                     'sources': [
+                        '.git-repo',
                         'subdir',
                         'subdir_3/nested',
+                        'subdir_4',
                         'templates'
                     ]
                 }
@@ -115,8 +123,13 @@ class TestStdlib(unittest.TestCase):
                 {
                     'overlay': overlays[1],
                     'sources': [
+                        '.git-repo/a.idx',
+                        '.git-repo/b.idx',
+                        '.git-repo/c.idx',
+                        '.git-repo/d.idx',
                         '.overlayignore',
                         'b.txt',
+                        'c.txt',
                         'source_config.yaml',
                         'subdir/b.txt',
                         'subdir_3/nested/b.txt',
