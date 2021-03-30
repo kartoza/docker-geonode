@@ -24,4 +24,4 @@ x-common-django:
 
 # Development Guide
 
-For development guideline, refer to [this doc][docs/DEVELOPMENT.md]
+For development guideline, refer to [this doc](docs/DEVELOPMENT.md)
