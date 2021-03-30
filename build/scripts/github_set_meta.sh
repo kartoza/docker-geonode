@@ -4,6 +4,7 @@
 
 if [[ -n "$GITHUB_ACTIONS" ]]; then
   echo "Github Actions detected."
+
   echo "Set output variable meta."
   echo "::set-output name=DOCKERHUB_REPO::${DOCKERHUB_REPO}"
   echo "::set-output name=VERSION::${VERSION}"
@@ -12,6 +13,17 @@ if [[ -n "$GITHUB_ACTIONS" ]]; then
   echo "::set-output name=APP_VERSION::${APP_VERSION}"
   echo "::set-output name=MAIN_PROJECT_NAME::${MAIN_PROJECT_NAME}"
   echo "::set-output name=PROJECT_NAME::${PROJECT_NAME}"
+
+  if [[ "${IMAGE_VARIANT}" == "default" ]]; then
+    echo "::set-output name=DOCKER_META_PREFIX::"
+  else
+    echo "::set-output name=DOCKER_META_PREFIX::${IMAGE_VARIANT}--"
+  fi
+
+  if [[ "${GITHUB_EVENT_NAME}" != "push" ]]; then
+    echo "Skipping defining image tags. This is not a push action."
+    exit 0
+  fi
 
   # Generate Full Image Tag for canonical tag
   if [[ "${GITHUB_REF}" =~ "^refs/heads/tag" ]]; then

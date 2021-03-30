@@ -4,7 +4,7 @@ Docs for GeoNode image builder for this branch.
 
 Source URLs: 
 
-![geonode](https://img.shields.io/badge/source-https://github.com/kartoza/geonode/tree/3.2.1-blue)
+![geonode](https://img.shields.io/badge/source-https://github.com/kartoza/geonode/tree/d9e0d81c126abcbfbbd4730c79a2e5b7d99c5162-blue)
 
 Docker image tags (latest): 
 
