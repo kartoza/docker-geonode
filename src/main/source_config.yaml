@@ -1,0 +1,13 @@
+# (string) project name. It should be the same as `src/{project_name}` name or git branch name with pattern `project-{project_name}`.
+project_name: main
+# (int) branch out level. How many times this source overlay have been branched from the `main` branch.
+depth: 0
+# `main` branch have depth: 0 . Branch that branches out from `main` have depth: 1 . If this is branches out again, increase the depth by 1.
+dependencies:
+  # Fill it with list of map that describes extra sources you need to build the output. Example below.
+  # Each entry corresponds to the `src` subdir inside the current overlay. The content of the subdir comes from submodules to a specific commit/release.
+  # For example, if we have gep component below, then from the root repository we have a directory `src/exciting/src/gep`
+# map that gets passed into the build phase
+build_args:
+# map that gets passed into the generator phase
+generator_args:

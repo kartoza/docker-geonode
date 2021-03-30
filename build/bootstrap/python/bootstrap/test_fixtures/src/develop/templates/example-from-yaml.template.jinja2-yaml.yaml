@@ -1,0 +1,20 @@
+# Some example template of yaml format
+# Generated using Jinja2
+sample-map:
+    from-env: {{ BUILD_DIRECTORY }}
+    from-env-default: {{ NO_VAR | from_env('PROJECT_DIR') }}
+    from-dotenv: {{ "default" | from_dotenv('templates/.env', 'KEY1' ) }}
+    from-yaml: {{ "default" | from_yaml('templates/context.yaml', 'key2' ) }}
+
+    {% if context.nonexistent_key %}
+    this should not be rendered
+    {% endif %}
+
+    {% if context.key1 %}
+    key1: {{ context.key1 }}
+    {% endif %}
+
+    sublist:
+    {% for el in context.map1.sublist %}
+        - {{ el }}
+    {% endfor %}

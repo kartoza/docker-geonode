@@ -1,0 +1,6 @@
+# ignore gitignore in `main`
+.gitignore
+
+# ignore file pattern in `main`
+# but don't ignore it in this overlay (develop)
+.git-repo/*.idx

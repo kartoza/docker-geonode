@@ -1,0 +1,5 @@
+# ignore gitignore in `main`
+.gitignore
+
+# ignore file pattern in this `develop` and `main`
+.git-repo/*.idx

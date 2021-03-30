@@ -1,0 +1,29 @@
+# (string) project name. It should be the same as `src/{project_name}` name or git branch name with pattern `project-{project_name}`.
+project_name: develop
+# (int) branch out level. How many times this source overlay have been branched from the `main` branch.
+depth: 1
+# `main` branch have depth: 0 . Branch that branches out from `main` have depth: 1 . If this is branches out again, increase the depth by 1.
+dependencies:
+  # Fill it with list of map that describes extra sources you need to build the output. Example below.
+  # Each entry corresponds to the `src` subdir inside the current overlay. The content of the subdir comes from submodules to a specific commit/release.
+  # For example, if we have gep component below, then from the root repository we have a directory `src/exciting/src/gep`
+# map that gets passed into the build phase
+build_args:
+# map that gets passed into the generator phase
+generator_args:
+  generators:
+    - # name of the generator
+      # it will be used to match the generator name as in the filename pattern:
+      # .template.<generator-name>.<extension-type>
+      name: jinja2
+      # command points to the executable that will run the generator
+      # it must be accessible from the PATH environment, or provide the
+      # full path here
+      command: jinja2_gen.py
+      # file_types must be a list of regex pattern that will match the
+      # extension type of this part: .template.<generator-name>.<extension-type>
+      file_types:
+        # .* means match any alphanumeric character (regex). This is not a dot with wildcard as in bash.
+        - '.*'
+      # extra parameters passed to the generator command (a list)
+      extra_args:

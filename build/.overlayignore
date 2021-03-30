@@ -1,0 +1,2 @@
+# Ignore previous geonode folder so it is a clean source repo in this overlay
+geonode/*

@@ -1,0 +1,20 @@
+# Some example template of yaml format
+# Generated using Jinja2
+sample-map:
+    from-env: 
+    from-env-default: 
+    from-dotenv: value1
+    from-yaml: value2
+
+    
+
+    
+    key1: value1
+    
+
+    sublist:
+    
+        - el1
+    
+        - el2
+    

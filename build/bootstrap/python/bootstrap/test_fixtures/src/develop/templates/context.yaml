@@ -1,0 +1,7 @@
+key1: value1
+key2: value2
+map1:
+    subkey1: subvalue1
+    sublist:
+        - el1
+        - el2

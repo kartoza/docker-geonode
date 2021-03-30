@@ -1,0 +1,156 @@
+name: latest-build
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - develop
+      - main
+      - project-*
+      - test
+jobs:
+  docker-builder:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        variant:
+          - default
+          - prod
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: 'true'
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+      - name: Login to DockerHub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+
+      - name: Set up nix
+        uses: cachix/install-nix-action@v12
+        with:
+          nix_path: nixpkgs=channel:nixos-unstable
+
+      - name: Set up build cache
+        uses: actions/cache@v2
+        with:
+          path: /tmp/build-cache
+          # Build inputs are src directory
+          # cache keys are:
+          # - project name (from branch name)
+          key: source-${{ github.ref }}-${{ hashFiles('src') }}
+          restore-keys: |
+            source-${{ github.ref }}-
+            source-
+
+      - name: Loads nix derivation cache
+        id: load-nix-cache
+        run: |
+          if [[ -f /tmp/build-cache/nix-closure/nix-shell.closure ]]; then
+            nix-store --import --option require-sigs false < /tmp/build-cache/nix-closure/nix-shell.closure
+            echo "::set-output name=use-cache::true"
+          fi
+      - name: Bootstrapping dependencies
+        run: |
+          nix-env -f '<nixpkgs>' -iA pkgs.direnv
+          nix-build
+          nix-shell --run "direnv allow"
+          make bootstrap
+
+      - name: Store nix derivation cache
+        run: |
+          DERIVATION=$(readlink result)
+          echo $DERIVATION
+          mkdir -p /tmp/build-cache/nix-closure
+          nix-store --export $(nix-store -qR ${DERIVATION}) > /tmp/build-cache/nix-closure/nix-shell.closure
+
+      - name: Create overlays
+        shell: direnv exec . bash -eo pipefail {0}
+        run: |
+          make overlay
+          make generate
+          
+          cat << EOF >> build/.local.env
+          IMAGE_VARIANT=${{ matrix.variant }}
+          EOF
+          
+          direnv allow build
+
+      - name: Check if we have matching target variant
+        id: build-variant
+        shell: direnv exec . bash -eo pipefail {0}
+        working-directory: build
+        run: |
+          make generate
+          scripts/github_check_image_variant.sh
+      
+      - name: Check if the build directory is dirty
+        run: |
+          if [[ -z "$(git status -s)" ]]; then
+            cat <<< EOF
+            Working directory is dirty. Please run:
+            
+            make overlay; make generate
+            
+            from the build directory
+            EOF
+
+            git status
+            exit 1
+          fi
+
+      - name: Generate build meta
+        if: matrix.variant == 'default' || steps.build-variant.outputs.IS_VARIANT_EXISTS
+        id: build-meta
+        shell: direnv exec . bash -eo pipefail {0}
+        working-directory: build
+        run: scripts/github_set_meta.sh
+
+      - name: Docker meta
+        if: matrix.variant == 'default' || steps.build-variant.outputs.IS_VARIANT_EXISTS
+        id: docker_meta
+        uses: crazy-max/ghaction-docker-meta@v1
+        with:
+          images: ${{ steps.build-meta.outputs.DOCKERHUB_REPO }}/${{ steps.build-meta.outputs.PROJECT_NAME }}
+          tag-semver: |
+            {{raw}}
+          tag-latest: false
+
+      - name: Build and push default
+        if: matrix.variant == 'default'
+        id: docker_build
+        uses: docker/build-push-action@v2
+        with:
+          context: build/geonode
+          file: build/geonode/scripts/spcgeonode/django/Dockerfile
+          push: true
+          tags: |
+            ${{ steps.docker_meta.outputs.tags }}
+            ${{ steps.build-meta.outputs.LATEST_IMAGE_TAG }}
+            ${{ steps.build-meta.outputs.MAJOR_IMAGE_TAG }}
+            ${{ steps.build-meta.outputs.CANONICAL_IMAGE_TAG }}
+      
+      - name: Build and push variant
+        if: steps.build-variant.outputs.IS_VARIANT_EXISTS
+        id: docker_build_variant
+        uses: docker/build-push-action@v2
+        with:
+          context: build/geonode
+          file: build/geonode/scripts/spcgeonode/django/${{ matrix.variant }}.Dockerfile
+          push: true
+          target: ${{ matrix.variant }}
+          tags: |
+            ${{ steps.build-meta.outputs.LATEST_VARIANT_IMAGE_TAG }}
+            ${{ steps.build-meta.outputs.MAJOR_VARIANT_IMAGE_TAG }}
+            ${{ steps.build-meta.outputs.CANONICAL_VARIANT_IMAGE_TAG }}
+
+      - name: Image digest
+        if: matrix.variant == 'default'
+        run: echo ${{ steps.docker_build.outputs.digest }}
+      
+      - name: Image variant digest
+        if: steps.build-variant.outputs.IS_VARIANT_EXISTS
+        run: echo ${{ steps.docker_build_variant.outputs.digest }}

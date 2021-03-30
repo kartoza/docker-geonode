@@ -1,0 +1,6 @@
+[submodule "src/main/geonode"]
+	path = src/main/geonode
+	url = https://github.com/GeoNode/geonode.git
+[submodule "src/develop/geonode"]
+	path = src/develop/geonode
+	url = https://github.com/kartoza/geonode.git
