@@ -14,6 +14,11 @@ on:
 jobs:
   docker-builder:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        variant:
+          - default
+          - prod
     steps:
       - uses: actions/checkout@v2
         with:
@@ -69,7 +74,13 @@ jobs:
       - name: Create overlays
         shell: direnv exec . bash -eo pipefail {0}
         run: |
-          make overlay generate
+          make overlay
+          make generate
+          
+          cat << EOF >> build/.local.env
+          IMAGE_VARIANT=${{ matrix.variant }}
+          EOF
+          
           direnv allow build
 
       - name: Check if we have matching target variant
@@ -95,6 +106,7 @@ jobs:
           fi
 
       - name: Generate build meta
+        if: matrix.variant == 'default' || steps.build-variant.outputs.IS_VARIANT_EXISTS
         id: build-meta
         shell: direnv exec . bash -eo pipefail {0}
         working-directory: build
@@ -111,7 +123,8 @@ jobs:
             type=ref,event=pr
             type=ref,event=branch
 
-      - name: Build and push
+      - name: Build and push default
+        if: matrix.variant == 'default'
         id: docker_build
         uses: docker/build-push-action@v2
         with:
@@ -140,4 +153,9 @@ jobs:
             ${{ steps.build-meta.outputs.CANONICAL_VARIANT_IMAGE_TAG }}
 
       - name: Image digest
+        if: matrix.variant == 'default'
         run: echo ${{ steps.docker_build.outputs.digest }}
+      
+      - name: Image variant digest
+        if: steps.build-variant.outputs.IS_VARIANT_EXISTS
+        run: echo ${{ steps.docker_build_variant.outputs.digest }}
