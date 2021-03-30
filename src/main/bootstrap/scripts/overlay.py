@@ -24,7 +24,15 @@ def main():
     for overlay in sorted_overlays['dir_sources']:
         for s in overlay['sources']:
             full_targetpath = os.path.join(build_dir, s)
-            os.makedirs(full_targetpath, exist_ok=True)
+            source_targetpath = os.path.join(overlay['overlay'], s)
+            if os.path.islink(source_targetpath):
+                try:
+                    os.remove(full_targetpath)
+                except BaseException:
+                    pass
+                shutil.copy(source_targetpath, full_targetpath, follow_symlinks=False)
+            else:
+                os.makedirs(full_targetpath, exist_ok=True)
     # Copy over files from sources
     for overlay in sorted_overlays['file_sources']:
         overlay_rootpath = overlay['overlay']
