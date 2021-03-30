@@ -2,9 +2,9 @@
 
 Docs for GeoNode image builder for this branch.
 
-Source GeoNode Git URL: ![Source GeoNode Git URL](https://img.shields.io/badge/source--blue)
+Source GeoNode Git URL: ![Source GeoNode Git URL](https://img.shields.io/badge/source-https://github.com/kartoza/geonode/tree/3.2.1-blue)
 
-Docker Image tag: ![Docker Image Tag](https://img.shields.io/badge/docker%20image%20tag-kartoza/geonode:latest-blue)
+Docker Image tag: ![Docker Image Tag](https://img.shields.io/badge/docker%20image%20tag-kartoza/geonode:prod--latest-blue)
 
 Main App Version (GeoNode): ![Main App Version](https://img.shields.io/badge/main%20app%20version-3.2.1-blue)
 
@@ -19,7 +19,7 @@ Simply replace the docker image for GeoNode to use this tagged image. Like this:
 ```yaml
 x-common-django:
   &default-common-django
-  image: kartoza/geonode:latest
+  image: kartoza/geonode:prod--latest
 ```
 
 # Development Guide
