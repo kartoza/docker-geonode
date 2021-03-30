@@ -85,7 +85,7 @@ def main():
                     command_array = [command, f, output_filename]
                     if isinstance(extra_args, list):
                         command_array += extra_args
-                    else:
+                    elif extra_args is not None:
                         command_array.append(extra_args)
 
                     input_for_hook.append({
@@ -104,13 +104,17 @@ def main():
         # run generator hooks (from the build dir)
         # pass on the template file lists as json, to the stdin
         try:
-            subprocess.run(
+            result = subprocess.run(
                 ["bash", "-c", ".overlay-hooks/generate.sh"],
-                stdin=json.dumps(input_for_hook),
+                input=json.dumps(input_for_hook),
                 text=True,
                 cwd=build_dir)
-        except:
-            pass
+            if result.stderr:
+                print(result.stderr.decode('utf-8'), file=sys.stderr)
+            if result.stdout:
+                print(result.stdout.decode('utf-8'), file=sys.stdout)
+        except BaseException as e:
+            print(e.message)
 
 
 if __name__ == '__main__':
