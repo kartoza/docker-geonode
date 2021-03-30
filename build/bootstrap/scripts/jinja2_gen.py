@@ -7,6 +7,7 @@ import yaml
 import sys
 
 import jinja2
+from jinja2.filters import do_urlencode
 
 
 def from_dotenv(value, dotenv_file, key):
@@ -32,6 +33,18 @@ def from_json(value, json_file, key):
         config = json.load(f)
         return config.get(key, value)
 
+def shieldsio_e(value):
+    """"
+    Escape using specifications for shields io badges
+    """
+    return do_urlencode(value.replace('-', '--'))
+
+def project_relpath(value):
+    """
+    Construct a path from absolute path relative to the current project directory
+    """
+    project_root = os.getenv('PROJECT_ROOT')
+    return os.path.join('/', os.path.relpath(value, project_root))
 
 def main():
     template_name = sys.argv[1]
@@ -57,6 +70,8 @@ def main():
     env.filters['from_env'] = from_env
     env.filters['from_yaml'] = from_yaml
     env.filters['from_json'] = from_json
+    env.filters['shieldsio_e'] = shieldsio_e
+    env.filters['p_relpath'] = project_relpath
 
     template = env.get_template(template_name)
     with open(output_name, mode='w') as f:
