@@ -88,6 +88,16 @@ def overlay_path_list(overlay):
         if files_set and relative_root:
             overlay_dirs.add(relative_root)
 
+        # also inspect symlink'd folder and include it to overlay_dirs
+        if dirs:
+            absolute_dirs = [os.path.join(root, d) for d in dirs]
+            symlink_dirs = [d for d in absolute_dirs if os.path.islink(d)]
+            dirs = [os.path.relpath(d, overlay) for d in symlink_dirs]
+            dirs_set = set(dirs)
+
+            if dirs_set:
+                overlay_dirs.update(dirs_set)
+
     overlay_files.sort()
     overlay_dirs = list(overlay_dirs)
     overlay_dirs.sort()

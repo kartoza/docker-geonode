@@ -21,7 +21,20 @@ if [[ -n "$GITHUB_ACTIONS" ]]; then
   fi
 
   # Generate Full Image Tag for latest in the branch
-  echo "::set-output name=LATEST_IMAGE_TAG::${DOCKERHUB_REPO}/${PROJECT_NAME}:${MAIN_PROJECT_NAME}---latest"
+  echo "::set-output name=LATEST_IMAGE_TAG::${LATEST_IMAGE_TAG}"
   # Generate Full Image Tag for major version
-  echo "::set-output name=MAJOR_IMAGE_TAG::${DOCKERHUB_REPO}/${PROJECT_NAME}:${APP_VERSION//\//--}--latest"
+  echo "::set-output name=MAJOR_IMAGE_TAG::${MAJOR_IMAGE_TAG}"
+
+  # Same as above, but for the variants
+  # Generate Full Image Tag for canonical tag
+  if [[ "${GITHUB_REF}" =~ "^refs/heads/tag" ]]; then
+    echo "::set-output name=CANONICAL_VARIANT_IMAGE_TAG::${CANONICAL_VARIANT_IMAGE_TAG}"
+  else
+    echo "::set-output name=CANONICAL_VARIANT_IMAGE_TAG::"
+  fi
+
+  # Generate Full Image Tag for latest in the branch
+  echo "::set-output name=LATEST_VARIANT_IMAGE_TAG::${LATEST_VARIANT_IMAGE_TAG}"
+  # Generate Full Image Tag for major version
+  echo "::set-output name=MAJOR_VARIANT_IMAGE_TAG::${MAJOR_VARIANT_IMAGE_TAG}"
 fi
