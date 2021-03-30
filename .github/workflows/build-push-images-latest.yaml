@@ -6,7 +6,11 @@ on:
       - develop
       - main
       - project-*
-      - test
+  pull_request:
+    branches:
+      - develop
+      - main
+      - project-*
 jobs:
   docker-builder:
     runs-on: ubuntu-latest
@@ -84,21 +88,20 @@ jobs:
         shell: direnv exec . bash -eo pipefail {0}
         working-directory: build
         run: |
+          make overlay
           make generate
           scripts/github_check_image_variant.sh
       
       - name: Check if the build directory is dirty
         run: |
-          if [[ -z "$(git status -s)" ]]; then
-            cat <<< EOF
-            Working directory is dirty. Please run:
+          if [[ -n "$(git status -s)" ]]; then
             
-            make overlay; make generate
-            
-            from the build directory
-            EOF
+            echo "Working directory is dirty. Please run:"
+            echo "make overlay; make generate"
+            echo "from the build directory"
 
             git status
+            popd
             exit 1
           fi
 
@@ -110,14 +113,15 @@ jobs:
         run: scripts/github_set_meta.sh
 
       - name: Docker meta
-        if: matrix.variant == 'default' || steps.build-variant.outputs.IS_VARIANT_EXISTS
         id: docker_meta
-        uses: crazy-max/ghaction-docker-meta@v1
+        uses: crazy-max/ghaction-docker-meta@v2
         with:
           images: ${{ steps.build-meta.outputs.DOCKERHUB_REPO }}/${{ steps.build-meta.outputs.PROJECT_NAME }}
-          tag-semver: |
-            {{raw}}
-          tag-latest: false
+          flavor: |
+            prefix=${{ steps.build-meta.outputs.DOCKER_META_PREFIX }}
+          tags: |
+            type=ref,event=pr
+            type=ref,event=branch
 
       - name: Build and push default
         if: matrix.variant == 'default'
@@ -143,6 +147,7 @@ jobs:
           push: true
           target: ${{ matrix.variant }}
           tags: |
+            ${{ steps.docker_meta.outputs.tags }}
             ${{ steps.build-meta.outputs.LATEST_VARIANT_IMAGE_TAG }}
             ${{ steps.build-meta.outputs.MAJOR_VARIANT_IMAGE_TAG }}
             ${{ steps.build-meta.outputs.CANONICAL_VARIANT_IMAGE_TAG }}
