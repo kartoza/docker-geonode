@@ -86,6 +86,21 @@ jobs:
         run: |
           make generate
           scripts/github_check_image_variant.sh
+      
+      - name: Check if the tree is directory
+        run: |
+          if [[ -z "$(git status -s)" ]]; then
+            cat <<< EOF
+            Working directory is dirty. Please run:
+            
+            make overlay; make generate
+            
+            from the build directory
+            EOF
+
+            git status
+            exit 1
+          fi
 
       - name: Generate build meta
         if: matrix.variant == 'default' || steps.build-variant.outputs.IS_VARIANT_EXISTS
